@@ -1,0 +1,16 @@
+---
+# file: roles/mapnik/tasks/main.yml
+- name: kakrueger openstreetmap ppa
+  apt_repository: repo='ppa:kakrueger/openstreetmap'
+
+- name: packages install
+  apt: name={{item}} state=present
+  with_items:
+    - python-software-properties
+    - libapache2-mod-tile
+    - cgi-mapserver
+#    - mapserver-bin
+#    - qgis-mapserver
+
+#- name: postgresql start
+#  service: name=postgresql state=started enabled=yes
