@@ -1,0 +1,21 @@
+---
+# file: roles/postgis/tasks/main.yml
+- name: packages install
+  apt: name={{item}} state=present
+  with_items:
+    - postgresql
+    - postgresql-9.3-postgis-2.1
+    - postgis
+
+#- name: postgresql start
+#  service: name=postgresql state=started enabled=yes
+
+- name: check gis database
+  command: psql -U postgres -l
+  register: check_gis_database
+  failed_when: check_gis_database.rc not in [0,1,2]
+  changed_when: check_gis_database.stdout.find('gis') != -1
+
+- debug: var=check_gis_database
+
+- debug: var=check_gis_database.stdout.find('gis')

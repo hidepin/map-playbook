@@ -6,6 +6,7 @@
     - openssh-client
     - ntpdate
     - ntp
+    - sysv-rc-conf
 
 - name: ntp setting
   template: src=ntp.conf.j2 dest=/etc/ntp.conf
