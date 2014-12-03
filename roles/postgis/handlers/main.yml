@@ -1,0 +1,4 @@
+---
+# file: roles/postgis/handlers/main.yml
+- name: postgresql restart
+  service: name=postgresql state=restarted
