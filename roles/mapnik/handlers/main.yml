@@ -3,5 +3,8 @@
 - name: postgresql restart
   service: name=postgresql state=restarted
 
+- name: touch timestamp file
+  command: sudo -u www-data touch /var/lib/mod_tile/planet-import-complete
+
 - name: renderd restart
   service: name=renderd state=restarted

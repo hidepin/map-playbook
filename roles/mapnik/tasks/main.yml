@@ -36,4 +36,6 @@
 - name: import osm
   command: osm2pgsql -U postgres --slim -C 1500 --number-processes 4 /tmp/{{osm_file}}
   when: check_gis_database.stdout.find('osm') == -1
-  notify: renderd restart
+  notify:
+    - touch timestamp file
+    - renderd restart
