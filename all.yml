@@ -3,5 +3,4 @@
 - hosts: all
   roles:
     - common
-    - postgis
-#    - mapnik
+    - mapnik

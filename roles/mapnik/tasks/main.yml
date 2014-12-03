@@ -1,16 +1,36 @@
 ---
 # file: roles/mapnik/tasks/main.yml
 - name: kakrueger openstreetmap ppa
-  apt_repository: repo='ppa:kakrueger/openstreetmap'
+  apt_repository: repo='ppa:kakrueger/openstreetmap' update_cache=yes
 
 - name: packages install
-  apt: name={{item}} state=present
+  apt: name={{item}} state=present update_cache=yes
   with_items:
-    - python-software-properties
+    - software-properties-common
     - libapache2-mod-tile
-    - cgi-mapserver
-#    - mapserver-bin
-#    - qgis-mapserver
 
-#- name: postgresql start
-#  service: name=postgresql state=started enabled=yes
+- name: pg_hba.conf settings
+  template: src=pg_hba.conf.j2 dest=/etc/postgresql/9.3/main/pg_hba.conf owner=postgres group=postgres mode=640
+  notify: postgresql restart
+
+- name: postgresql start
+  service: name=postgresql state=started enabled=yes
+
+- name: check gis database
+  command: sudo -u postgres psql -U postgres -d gis -c '\d'
+  register: check_gis_database
+  failed_when: check_gis_database.rc not in [0,1,2]
+  changed_when: check_gis_database.stdout.find('osm') == -1
+
+- name: postgresql restart
+  service: name=postgresql state=restarted
+  when: check_gis_database.stdout.find('osm') == -1
+
+- name: copy osm file
+  copy: src={{osm_file}} dest=/tmp
+  when: check_gis_database.stdout.find('osm') == -1
+
+- name: import osm
+  command: osm2pgsql -U postgres --slim -C 1500 --number-processes 4 /tmp/{{osm_file}}
+  when: check_gis_database.stdout.find('osm') == -1
+  notify: renderd restart
